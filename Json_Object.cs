@@ -9,22 +9,6 @@ namespace Json_Object
 {
     public class Json_Object
     {
-
-    #region Public Interface
-        public static Json_Object Parse(string text)
-        {
-            if(text[0] != '{')
-                throw new Exception("Invalid JSON object: must start with '{'");
-            int index = 1;
-            return new Json_Object(text, ref index);
-        }
-
-        public static Json_Object Read(string filename)
-        {
-            return Parse(File.ReadAllText(filename));
-        }
-    #endregion
-
     #region Properties, helpers
         internal Dictionary<string, object> Value = new Dictionary<string, object> { };
         private static char c;
