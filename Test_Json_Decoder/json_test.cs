@@ -7,8 +7,8 @@ using Json_Decoder;
 
 namespace Test_Json_Decoder
 {
-    //TODO: report error when root object is completed before end of text
     //TODO: create a List with error reports as a 'property'
+
     class json_test
     {
         static void Main(string[] args)
