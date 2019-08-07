@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("json-parse")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Json_Decoder")]
+[assembly: AssemblyDescription(".Net library to decode JSON to C# object structure")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("json-parse")]
+[assembly: AssemblyCompany("Antares Project Services  [del.b.smith@gmail.com]")]
+[assembly: AssemblyProduct("Json_Decoder")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -3,20 +3,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Json_Object;
+using Json_Decoder;
 
-namespace Test_Json_Object
+namespace Test_Json_Decoder
 {
+    //TODO: report error when root object is completed before end of text
+    //TODO: create a List with error reports as a 'property'
     class json_test
     {
         static void Main(string[] args)
         {
-            Json_Object.Json_Value data;
+            object content;
 
             // read JSON file into an Object
             try
             {
-                 data = Json_Object.Json_Value.Read(args[0]);
+                 content = Json_Decoder.Json.Load(args[0]);
             }
             catch (Exception e)
             {
@@ -27,7 +29,7 @@ namespace Test_Json_Object
             try
             {
                 string json = File.ReadAllText(args[0]);
-                data = Json_Object.Json_Value.Parse(json);
+                content = Json_Decoder.Json.Parse(json);
             }
             catch (Exception e)
             {

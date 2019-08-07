@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.757
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json_Object", ".\Json_Object.csproj", "{9175B4B2-BCB1-4D62-8EFC-5990AAB4428F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json_Decoder", "Json_Decoder.csproj", "{9175B4B2-BCB1-4D62-8EFC-5990AAB4428F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_Json_Object", "Test_Json_Object\Test_Json_Object.csproj", "{B0F147BC-CBE2-44DD-AF55-DC1D0C1A619D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_Json_Decoder", "Test_Json_Decoder\Test_Json_Decoder.csproj", "{B0F147BC-CBE2-44DD-AF55-DC1D0C1A619D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

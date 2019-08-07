@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B0F147BC-CBE2-44DD-AF55-DC1D0C1A619D}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Test_Json_Object</RootNamespace>
-    <AssemblyName>Test_Json_Object</AssemblyName>
+    <RootNamespace>Test_Json_Decoder</RootNamespace>
+    <AssemblyName>Test_Json_Decoder</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Json_Object.csproj">
+    <ProjectReference Include="..\Json_Decoder.csproj">
       <Project>{9175b4b2-bcb1-4d62-8efc-5990aab4428f}</Project>
-      <Name>Json_Object</Name>
+      <Name>Json_Decoder</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
