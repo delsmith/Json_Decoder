@@ -1,4 +1,4 @@
-# Json_Object
+# Json_Decoder
  .Net library for JSON parsing
  
     After failing to find anything in .Net that was as simple to use as either
