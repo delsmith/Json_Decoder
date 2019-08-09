@@ -25,7 +25,9 @@ namespace Json_Decoder
         #region Public Interface
         public static object Parse(string text)
         {
-            int index = 0;
+            char utf_BOM = '\ufeff';
+            int index = (text[0] == utf_BOM) ? 1 : 0;
+
             var Value = Json_Value(text, ref index);
 
             SkipWS(text, ref index);
