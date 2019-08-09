@@ -9,19 +9,29 @@ namespace Json_Decoder
 {
     public class Json
     {
-        private static char c;
-        internal static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
+        private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
+        internal static char SkipWS(string text, ref int index)
+        {
+            while (text.Length > index)
+            {
+                if (IsWS(text[index])) index++;
+                else return text[index];
+            }
+            return '\n';
+        }
+
         internal class Json_List : List<object> { }
 
         #region Public Interface
         public static object Parse(string text)
         {
-            object Value;
             int index = 0;
-            Value = Json_Value(text, ref index);
-            while (text.Length > index && IsWS(c = text[index])) index++;
+            var Value = Json_Value(text, ref index);
+
+            SkipWS(text, ref index);
             if (text.Length > index)
                 throw new Exception($"Parsing terminated before end-of-text at char #{index}");
+
             return Value;
         }
 
@@ -33,76 +43,66 @@ namespace Json_Decoder
 
         internal static object Json_Value(string text, ref int index)
         {
-            while (IsWS(c = text[index])) index++;
+            char c = SkipWS(text, ref index);
             switch (c)
             {
-                case '[':
-                    return Json_Array(text, ref index);
-                case '{':
-                    return Json_Object(text, ref index);
-                case '"':
-                    return Json_String(text, ref index);
-                default: // number, literal or invalid
-                    try
-                    {
-                        return Json_Number(text, ref index);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception(e.Message);
-                    }
+                case '[': // JSON Array
+                    index++;  return Json_Array(text, ref index);
+                case '{': // JSON Object
+                    index++;  return Json_Object(text, ref index);
+                case '"': // JSON String
+                    index++;  return Json_String(text, ref index);
+                default:  // number or literal (or invalid)
+                    return Json_Number(text, ref index);
             }
         }
 
-        internal static object Json_Array(string text, ref int index)
+        internal static List<object> Json_Array(string text, ref int index)
         {
             List<object> Value = new List<object> { };
 
-            index++;
-
-            while (text[index] != ']')
+            char c= SkipWS(text, ref index);
+            while (c != ']')
             {
-                var next = Json_Value(text, ref index);
-                Value.Add(next);
-                if (text[index] == ',')
-                    index++;
-                while (IsWS(text[index])) index++;
+                Value.Add(Json_Value(text, ref index));
+
+                c = SkipWS(text, ref index);
+                if (c == ',')
+                    c = text[++index];
             }
             index++;
+            SkipWS(text, ref index);
             return Value;
         }
 
         #region Json_Object
-        internal static object Json_Object(string text, ref int index)
+        internal static Dictionary<string, object> Json_Object(string text, ref int index)
         {
             Dictionary<string, object> JObject = new Dictionary<string, object> { };
-            index++;
-            while (IsWS(c = text[index])) index++;
-            while (text[index] != '}')
+            char c = SkipWS(text, ref index);
+            while (c != '}')
             {
                 var next = Json_Member(text, ref index);
-                string key = next.Name;
-
-                if (!JObject.ContainsKey(key))
-                    JObject[key] = next.Value;
+                if (!JObject.ContainsKey(next.Name))
+                    JObject[next.Name] = next.Value;
                 // When member name is repeated, create a List<object> to contain
-                else if (JObject[key].GetType().Name != "Json_List")
+                else if (JObject[next.Name].GetType().Name != "Json_List")
                 {
-                    object first = JObject[key];
-                    JObject.Remove(key);
-                    JObject[key] = new Json_List() { first, next.Value };
+                    object first = JObject[next.Name];
+                    JObject.Remove(next.Name);
+                    JObject[next.Name] = new Json_List() { first, next.Value };
                 }
                 else
                 {
-                    ((Json_List)JObject[key]).Add(next.Value);
+                    ((Json_List)JObject[next.Name]).Add(next.Value);
                 }
 
                 if (text[index] == ',')
                     index++;
-                while (IsWS(c = text[index])) index++;
+                c = SkipWS(text, ref index);
             }
-            c = text[index];
             index++;
+            SkipWS(text, ref index);
             return JObject;
         }
 
@@ -116,17 +116,19 @@ namespace Json_Decoder
         {
             JMember member = new JMember();
             int start = index;
-            while (IsWS(c = text[index])) index++;
+            char c = SkipWS(text, ref index);
             if (c == '"')
             {
                 try
                 {
+                    index++;
                     member.Name = Json_String(text, ref index);
-                    while (IsWS(c = text[index])) index++;
+                    c = SkipWS(text, ref index);
                     if (c == ':')
                     {
                         index++;
                         member.Value = Json_Value(text, ref index);
+                        SkipWS(text, ref index);
                         return member;
                     }
                 }
@@ -144,11 +146,10 @@ namespace Json_Decoder
         {
             string Value = "";
             bool again = true;
-            index++;
             // scan to the next un-escaped double-quote
             while (again)
             {
-                c = text[index++];
+                char c = text[index++];
                 switch (c)
                 {
                     // one double-quote is end of string
@@ -172,6 +173,7 @@ namespace Json_Decoder
                         break;
                 }
             }
+            SkipWS(text, ref index);
             return Value;
         }
 
@@ -207,37 +209,32 @@ namespace Json_Decoder
 
         internal static object Json_Number(string text, ref int index)
         {
-            object Value;
-
-            while (IsWS(c = text[index])) index++;
+            char c = SkipWS(text, ref index);
             int start = index;
 
             if (text.Length >= start + 4 && text.IndexOf("true", start, 4) == start)
             {
-                Value = true;
                 index += 4;
+                return true;
             }
             else if (text.Length >= start + 5 && text.IndexOf("false", start, 5) == start)
             {
-                Value = false;
                 index += 5;
+                return false;
             }
             else if (text.Length >= start + 4 && text.IndexOf("null", start, 4) == start)
             {
-                Value = null;
                 index += 4;
+                return null;
             }
             else
             {
                 while (text.Length > index && ",}]".IndexOf((c = text[index])) < 0 && !IsWS(c)) index++;
                 string sValue = text.Substring(start, index - start);
-                if (Int64.TryParse(sValue, out long iValue)) Value = iValue;
-                else if (double.TryParse(sValue, out double dValue)) Value = dValue;
-                else throw new Exception($"Invalid numeric value '{sValue}' and char #{index}");
+                if (Int64.TryParse(sValue, out long iValue))return iValue;
+                else if (double.TryParse(sValue, out double dValue)) return dValue;
+                else throw new Exception($"Invalid numeric value '{sValue}' at char #{start}");
             }
-            while (text.Length > index && IsWS(c = text[index])) index++;
-
-            return Value;
         }
     }
 }
