@@ -16,7 +16,7 @@ namespace Test_Json_Decoder
             // read JSON file into an Object
             try
             {
-                 var content = Json_Decoder.Json.Load(args[0]);
+                var content = Json.Load(args[0]);
             }
             catch (Exception e)
             {

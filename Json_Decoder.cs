@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Json_Decoder
 {
+    public class JArray : List<object> { }
+    public class JDict: Dictionary<string, object> { }
+
     public class Json
     {
         private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
@@ -20,7 +23,7 @@ namespace Json_Decoder
             return '\n';
         }
 
-        internal class Json_List : List<object> { }
+        internal class Json_List : JArray { }
 
         #region Public Interface
         public static object Parse(string text)
@@ -59,9 +62,9 @@ namespace Json_Decoder
             }
         }
 
-        internal static List<object> Json_Array(string text, ref int index)
+        internal static JArray Json_Array(string text, ref int index)
         {
-            List<object> Value = new List<object> { };
+            JArray Value = new JArray { };
 
             char c= SkipWS(text, ref index);
             while (c != ']')
@@ -78,9 +81,9 @@ namespace Json_Decoder
         }
 
         #region Json_Object
-        internal static Dictionary<string, object> Json_Object(string text, ref int index)
+        internal static JDict Json_Object(string text, ref int index)
         {
-            Dictionary<string, object> JObject = new Dictionary<string, object> { };
+            JDict JObject = new JDict { };
             char c = SkipWS(text, ref index);
             while (c != '}')
             {
