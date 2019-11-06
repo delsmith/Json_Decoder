@@ -1,0 +1,23 @@
+6-Nov-2019
+-----------------------------
+Updated to produce 'dynamic' types in decoded data object.
+
+This eliminates the need to cast elements when you use them.
+It also enables you to print an element without concern for the type.
+(Have a look at 'json-test.cs')
+
+The parser will return a type which is the type of the top-level value
+
+This will (usually) be of type
+    -JDict  - {"Name":Value, ...} which is a .Net   Dictionary<string,dynamic> object
+    -JArray - [Value, Value, ...] which is a .Net   List<dynamic> object
+    
+It is usually one of these, but in trivial cases could be any valid Value type including
+    -string
+    -double
+    -long
+    -bool
+    -null
+    
+You can assign any item to a 'var' or 'dynamic' typed variable
+If you know what type a value is you can assign it to a typed variable.
