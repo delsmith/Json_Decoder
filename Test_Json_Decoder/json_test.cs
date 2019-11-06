@@ -17,6 +17,10 @@ namespace Test_Json_Decoder
             try
             {
                 var content = Json.Load(args[0]);
+                foreach(string key in content.Keys)
+                {
+                    Console.WriteLine($"{key}: {content[key]}");
+                }
             }
             catch (Exception e)
             {
