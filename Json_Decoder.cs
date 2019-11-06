@@ -231,6 +231,7 @@ namespace Json_Decoder
                 else throw new Exception($"Invalid numeric value '{sValue}' at char #{start}");
             }
         }
+
         private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
         internal static char SkipWS(string text, ref int index)
         {
