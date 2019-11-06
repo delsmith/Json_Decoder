@@ -17,7 +17,7 @@ namespace Json_Decoder
         {
             char utf_BOM = '\ufeff';
             int index = (text[0] == utf_BOM) ? 1 : 0;
-            dynamic Value = (new Json_Value(text, ref index)).Value;
+            dynamic Value = Json_Value(text, ref index);
 
             SkipWS(text, ref index);
             if (text.Length > index)
@@ -32,29 +32,22 @@ namespace Json_Decoder
         }
         #endregion
 
-        internal class Json_Value {
-            public dynamic Value { get; set; }
-            internal Json_Value(string text, ref int index)
+        internal static dynamic Json_Value(string text, ref int index)
+        {
+            char c = SkipWS(text, ref index);
+            switch (c)
             {
-                char c = SkipWS(text, ref index);
-                switch (c)
-                {
-                    case '[': // JSON Array
-                        index++;
-                        Value = Json_Array(text, ref index);
-                        break;
-                    case '{': // JSON Object
-                        index++;
-                        Value = Json_Object(text, ref index);
-                        break;
-                    case '"': // JSON String
-                        index++;
-                        Value = Json_String(text, ref index);
-                        break;
-                    default:  // number or literal (or invalid)
-                        Value = Json_Number(text, ref index);
-                        break;
-                }
+                case '[': // JSON Array
+                    index++;
+                    return Json_Array(text, ref index);
+                case '{': // JSON Object
+                    index++;
+                    return Json_Object(text, ref index);
+                case '"': // JSON String
+                    index++;
+                    return Json_String(text, ref index);
+                default:  // number or literal (or invalid)
+                    return Json_Number(text, ref index);
             }
         }
 
@@ -65,7 +58,7 @@ namespace Json_Decoder
             char c= SkipWS(text, ref index);
             while (c != ']')
             {
-                Value.Add((new Json_Value(text, ref index)).Value);
+                Value.Add(Json_Value(text, ref index));
 
                 c = SkipWS(text, ref index);
                 if (c == ',')
@@ -128,7 +121,7 @@ namespace Json_Decoder
                     if (c == ':')
                     {
                         index++;
-                        dynamic Val = (new Json_Value(text, ref index)).Value;
+                        dynamic Val = Json_Value(text, ref index);
                         member.Value = Val;
                         SkipWS(text, ref index);
                         return member;
