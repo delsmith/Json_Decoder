@@ -7,31 +7,17 @@ using System.Threading.Tasks;
 
 namespace Json_Decoder
 {
-    public class JArray : List<object> { }
-    public class JDict: Dictionary<string, object> { }
+    public class JArray : List<dynamic> { }
+    public class JDict: Dictionary<string, dynamic> { }
 
     public class Json
     {
-        private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
-        internal static char SkipWS(string text, ref int index)
-        {
-            while (text.Length > index)
-            {
-                if (IsWS(text[index])) index++;
-                else return text[index];
-            }
-            return '\n';
-        }
-
-        internal class Json_List : JArray { }
-
         #region Public Interface
-        public static object Parse(string text)
+        public static dynamic Parse(string text)
         {
             char utf_BOM = '\ufeff';
             int index = (text[0] == utf_BOM) ? 1 : 0;
-
-            var Value = Json_Value(text, ref index);
+            dynamic Value = (new Json_Value(text, ref index)).Value;
 
             SkipWS(text, ref index);
             if (text.Length > index)
@@ -40,25 +26,35 @@ namespace Json_Decoder
             return Value;
         }
 
-        public static object Load(string filename)
+        public static dynamic Load(string filename)
         {
             return Parse(File.ReadAllText(filename));
         }
         #endregion
 
-        internal static object Json_Value(string text, ref int index)
-        {
-            char c = SkipWS(text, ref index);
-            switch (c)
+        internal class Json_Value {
+            public dynamic Value { get; set; }
+            internal Json_Value(string text, ref int index)
             {
-                case '[': // JSON Array
-                    index++;  return Json_Array(text, ref index);
-                case '{': // JSON Object
-                    index++;  return Json_Object(text, ref index);
-                case '"': // JSON String
-                    index++;  return Json_String(text, ref index);
-                default:  // number or literal (or invalid)
-                    return Json_Number(text, ref index);
+                char c = SkipWS(text, ref index);
+                switch (c)
+                {
+                    case '[': // JSON Array
+                        index++;
+                        Value = Json_Array(text, ref index);
+                        break;
+                    case '{': // JSON Object
+                        index++;
+                        Value = Json_Object(text, ref index);
+                        break;
+                    case '"': // JSON String
+                        index++;
+                        Value = Json_String(text, ref index);
+                        break;
+                    default:  // number or literal (or invalid)
+                        Value = Json_Number(text, ref index);
+                        break;
+                }
             }
         }
 
@@ -69,7 +65,7 @@ namespace Json_Decoder
             char c= SkipWS(text, ref index);
             while (c != ']')
             {
-                Value.Add(Json_Value(text, ref index));
+                Value.Add((new Json_Value(text, ref index)).Value);
 
                 c = SkipWS(text, ref index);
                 if (c == ',')
@@ -91,15 +87,15 @@ namespace Json_Decoder
                 if (!JObject.ContainsKey(next.Name))
                     JObject[next.Name] = next.Value;
                 // When member name is repeated, create a List<object> to contain
-                else if (JObject[next.Name].GetType().Name != "Json_List")
+                else if (JObject[next.Name].GetType().Name != "JArray")
                 {
                     object first = JObject[next.Name];
                     JObject.Remove(next.Name);
-                    JObject[next.Name] = new Json_List() { first, next.Value };
+                    JObject[next.Name] = new JArray() { first, next.Value };
                 }
                 else
                 {
-                    ((Json_List)JObject[next.Name]).Add(next.Value);
+                    ((JArray)JObject[next.Name]).Add(next.Value);
                 }
 
                 if (text[index] == ',')
@@ -114,7 +110,7 @@ namespace Json_Decoder
         internal class JMember
         {
             internal string Name { get; set; } = null;
-            internal object Value { get; set; } = null;
+            internal dynamic Value { get; set; } = null;
         }
 
         internal static JMember Json_Member(string text, ref int index)
@@ -132,7 +128,8 @@ namespace Json_Decoder
                     if (c == ':')
                     {
                         index++;
-                        member.Value = Json_Value(text, ref index);
+                        dynamic Val = (new Json_Value(text, ref index)).Value;
+                        member.Value = Val;
                         SkipWS(text, ref index);
                         return member;
                     }
@@ -212,7 +209,7 @@ namespace Json_Decoder
         }
         #endregion
 
-        internal static object Json_Number(string text, ref int index)
+        internal static dynamic Json_Number(string text, ref int index)
         {
             char c = SkipWS(text, ref index);
             int start = index;
@@ -240,6 +237,16 @@ namespace Json_Decoder
                 else if (double.TryParse(sValue, out double dValue)) return dValue;
                 else throw new Exception($"Invalid numeric value '{sValue}' at char #{start}");
             }
+        }
+        private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
+        internal static char SkipWS(string text, ref int index)
+        {
+            while (text.Length > index)
+            {
+                if (IsWS(text[index])) index++;
+                else return text[index];
+            }
+            return '\n';
         }
     }
 }
