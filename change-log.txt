@@ -6,9 +6,9 @@ This eliminates the need to cast elements when you use them.
 It also enables you to print an element without concern for the type.
 (Have a look at 'json-test.cs')
 
-The parser will return a type which is the type of the top-level value
+The parser will return a result of the type of the top-level value
 
-This will (usually) be of type
+This will (usually) be one of the container types
     -JDict  - {"Name":Value, ...} which is a .Net   Dictionary<string,dynamic> object
     -JArray - [Value, Value, ...] which is a .Net   List<dynamic> object
     
@@ -21,3 +21,74 @@ It is usually one of these, but in trivial cases could be any valid Value type i
     
 You can assign any item to a 'var' or 'dynamic' typed variable
 If you know what type a value is you can assign it to a typed variable.
+
+example
+------------------------
+With the following JSON string
+{
+    "source":"sigfox",
+    "device_type":"site_sentinel",
+    "device":"3E6B0F",
+    "time":1573087326,
+    "seqNumber":526,
+    "lqi":"Good",
+    "lat":0.0,
+    "long":0.0,
+    "data":
+    {
+        "RESULT_001":18684,
+        "RESULT_002":83,
+        "MODBUS":0,
+        "VOLTS":7.7479999999999993,
+        "COUNTER":0,
+        "INPUT_001":0,
+        "INPUT_002":1,
+        "SCAN_TIMED":0,
+        "SCAN_FAST":0
+    }
+}
+
+You can access the data in its natural form using the code
+
+----
+using Json_Decoder;
+...
+internal static dynamic TryFetch(Dictionary<string, dynamic> d, string key) => (d.ContainsKey(key) ? d[key] : null);
+...
+string s_json = ".. as above .."
+dynamic iot_event = Json.Parse(s_json);
+string device_type = TryFetch(iot_event,"device_type");
+string device = TryFetch(iot_event,"device");
+long time = TryFetch(iot_event,"time");
+long seqNumber = TryFetch(iot_event,"seqNumber");
+string lqi = TryFetch(iot_event,"lqi");
+double latitude = TryFetch(iot_event,"lat");
+double longitude = TryFetch(iot_event,"long");
+dynamic data = TryFetch(iot_event, "data");
+
+long result_001 = TryFetch(data, "RESULT_001");
+long result_002 = TryFetch(data, "RESULT_002");
+long modbus  = TryFetch(data, "MODBUS");
+long counter = TryFetch(data, "COUNTER");
+long input_001 = TryFetch(data, "INPUT_001");
+long input_002 = TryFetch(data, "INPUT_002");
+long scan_timed = TryFetch(data, "SCAN_TIMED");
+long scan_fast = TryFetch(data, "SCAN_FAST");
+double VOLTS = TryFetch(data, "VOLTS");
+----
+
+More generically (expanding the 'data' object)
+----
+foreach (string key in data.Keys)
+    Console.WriteLine($"Name: {key}, Value: {data[key]}")
+----
+
+If the JSON 'value type' does not match the declared variable type an exception will be thrown.
+Any of the target variables can be declared 'dynamic' instead of a specific type.
+In that case any type of JSON value will be accepted and the variable will take on the type indicated by the data
+as follows ...
+----
+dynamic seqNumber = TryFetch(iot_event,"seqNumber");
+dynamic lqi = TryFetch(iot_event,"lqi");
+dynamic latitude = TryFetch(iot_event,"lat");
+----

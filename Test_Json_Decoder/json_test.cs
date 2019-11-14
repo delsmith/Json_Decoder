@@ -16,7 +16,7 @@ namespace Test_Json_Decoder
             // read JSON file into an Object
             try
             {
-                var content = Json.Load(args[0]);
+                dynamic content = Json.Load(args[0]);
                 foreach(string key in content.Keys)
                 {
                     Console.WriteLine($"{key}: {content[key]}");
