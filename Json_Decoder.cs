@@ -2,13 +2,49 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Json_Decoder
 {
-    public class JArray : List<dynamic> { }
-    public class JDict: Dictionary<string, dynamic> { }
+    public class JArray : List<dynamic>
+    {
+        public dynamic Item(int index) => (index >= 0 && index < Count) ? this[index] : null;
+        public dynamic Item(string key) => null;     // invalid reference
+    }
+
+    public class JDict: Dictionary<string, dynamic>
+    {
+        public dynamic Item(int index) => null;     // invalid reference
+        public dynamic Item(string key)
+        {
+            if( key.IndexOf('.') < 0)
+            {
+                if( key.IndexOf('[') < 0)
+                    // fetch the referenced element
+                    return (this.ContainsKey(key) ? this[key] : null);
+                else
+                {
+                    string node = key.Substring(0, key.IndexOf('['));
+                    int index = parse_index(key);
+                    return (index >= 0) ? this[node].Item(index) : null;
+                }
+            }
+            else
+            {
+                // extract node name and key 
+                string[] nodes = key.Split(".".ToCharArray(), 2);
+                dynamic element = this.Item(nodes[0]);
+                return element?.Item(nodes[1]);
+            }
+        }
+        internal static int parse_index(string input)
+        {
+            string pattern = @"\[([^\[\]]+)\]";
+            var content = Regex.Match(input, pattern).Groups[1].Value;
+            return (int.TryParse(content, out int index))? index: -1;
+        }
+    }
 
     public class Json
     {
