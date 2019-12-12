@@ -16,9 +16,11 @@ namespace Json_Decoder
     public class JDict: Dictionary<string, dynamic>
     {
         public dynamic Item(int index) => null;     // invalid reference
+        public dynamic Item(string key, dynamic dflt) => Item(key) ?? dflt;
+
         public dynamic Item(string key)
         {
-            if( key.IndexOf('.') < 0)
+            if ( key.IndexOf('.') < 0)
             {
                 if( key.IndexOf('[') < 0)
                     // fetch the referenced element
