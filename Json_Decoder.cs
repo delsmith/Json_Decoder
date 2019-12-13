@@ -53,6 +53,9 @@ namespace Json_Decoder
         #region Public Interface
         public static dynamic Parse(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return null;
+
             char utf_BOM = '\ufeff';
             int index = (text[0] == utf_BOM) ? 1 : 0;
             dynamic Value = Json_Value(text, ref index);
