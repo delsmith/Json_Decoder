@@ -267,12 +267,13 @@ namespace Json_Decoder
             {
                 while (text.Length > index && ",}]".IndexOf((c = text[index])) < 0 && !IsWS(c)) index++;
                 string sValue = text.Substring(start, index - start);
-                if (Int64.TryParse(sValue, out long iValue))return iValue;
+                if (Int64.TryParse(sValue, out long iValue)) return iValue;
                 else if (double.TryParse(sValue, out double dValue)) return dValue;
                 else throw new Exception($"Invalid numeric value '{sValue}' at char #{start}");
             }
         }
 
+        #region helper functions
         private static bool IsWS(char c) { return ("\x20\x09\x0a\x0d".IndexOf(c) >= 0); }
         internal static char SkipWS(string text, ref int index)
         {
@@ -283,5 +284,7 @@ namespace Json_Decoder
             }
             return '\n';
         }
+        #endregion
+
     }
 }
