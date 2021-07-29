@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Json_Decoder
 {
+    #region collection classes
     public class JArray : List<dynamic>
     {
         public dynamic Item(int index) => (index >= 0 && index < Count) ? this[index] : null;
@@ -48,6 +49,7 @@ namespace Json_Decoder
         }
     }
 
+    #endregion
     public class Json
     {
         #region Public Interface
